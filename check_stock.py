@@ -41,6 +41,9 @@ def send_whatsapp_message(name, url):
     )
     print(f"Sent alert for {name} - SID: {message.sid}")
 
+    print(" Restarting stock check")
+
+
 # Main loop
 while True:
     try:
