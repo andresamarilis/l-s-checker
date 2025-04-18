@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from twilio.rest import Client
 import time
 
-# Load Twilio creds from environment
+# Twilio credentials from Railway environment variables
 TWILIO_SID = os.environ["TWILIO_SID"]
 TWILIO_AUTH_TOKEN = os.environ["TWILIO_AUTH_TOKEN"]
 TWILIO_PHONE = os.environ["TWILIO_PHONE"]
@@ -12,31 +12,45 @@ YOUR_PHONE = os.environ["YOUR_PHONE"]
 
 client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
 
-# Replace with the actual URL of the Labubus product
-URL = "https://popmart.com.au/products/labubu-xxxx"  # <- update this
+# Real Popmart Labubu product links
+PRODUCTS = {
+    "Checkmate Pendant": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-labubu-lets-checkmate-vinyl-plush-pendant",
+    "Have A Seat Blind Box": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-have-a-seat-series-plush-pendant-blind-box",
+    "Exciting Macaron Blind Box": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-exciting-macaron-series-plush-pendant-blind-box"
+}
 
-def is_in_stock():
-    headers = {"User-Agent": "Mozilla/5.0"}
-    response = requests.get(URL, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
-    return "Sold Out" not in soup.text  # Change if Popmart uses different words
+HEADERS = {
+    "User-Agent": "Mozilla/5.0"
+}
 
-def send_whatsapp_message():
+def is_in_stock(url):
+    try:
+        response = requests.get(url, headers=HEADERS)
+        soup = BeautifulSoup(response.text, "html.parser")
+        return "ADD TO CART" in soup.text.upper()
+    except Exception as e:
+        print(f"Error checking {url}: {e}")
+        return False
+
+def send_whatsapp_message(name, url):
     message = client.messages.create(
         from_="whatsapp:" + TWILIO_PHONE,
         to="whatsapp:" + YOUR_PHONE,
-        body="🔥 LABUBU is in stock at Popmart! Go go go!\n" + URL
+        body=f"🔥 {name} is IN STOCK at Popmart!\n{url}"
     )
-    print("Sent alert:", message.sid)
+    print(f"Sent alert for {name} - SID: {message.sid}")
 
+# Main loop
 while True:
     try:
-        if is_in_stock():
-            send_whatsapp_message()
-            time.sleep(3600)  # wait an hour before checking again
-        else:
-            print("Still sold out. Checking again in 5 minutes.")
-            time.sleep(300)
+        for name, url in PRODUCTS.items():
+            print(f"Checking: {name}")
+            if is_in_stock(url):
+                send_whatsapp_message(name, url)
+            else:
+                print(f"{name}: Still sold out.")
+        print("Sleeping for 5 minutes...")
+        time.sleep(300)  # wait 5 minutes
     except Exception as e:
-        print("Error:", e)
+        print("General error:", e)
         time.sleep(300)
