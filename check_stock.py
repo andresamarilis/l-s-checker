@@ -35,6 +35,7 @@ def is_in_stock(url):
 
 def send_whatsapp_message(name, url):
     try:
+        print(f"Sending WhatsApp alert to: {YOUR_PHONE} from: {TWILIO_PHONE}")
         message = client.messages.create(
             from_="whatsapp:" + TWILIO_PHONE,
             to="whatsapp:" + YOUR_PHONE,
@@ -43,6 +44,7 @@ def send_whatsapp_message(name, url):
         print(f"Sent alert for {name} - SID: {message.sid}")
     except Exception as e:
         print(f"❌ Failed to send WhatsApp message for {name}: {e}")
+
 
 # Main loop
 print("🔁 Restarting stock check")
