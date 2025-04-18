@@ -12,11 +12,12 @@ YOUR_PHONE = os.environ["YOUR_PHONE"]
 
 client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
 
-# Real Popmart Labubu product links
+# 4 products, including 1 that is confirmed IN STOCK
 PRODUCTS = {
     "Checkmate Pendant": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-labubu-lets-checkmate-vinyl-plush-pendant",
     "Have A Seat Blind Box": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-have-a-seat-series-plush-pendant-blind-box",
-    "Exciting Macaron Blind Box": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-exciting-macaron-series-plush-pendant-blind-box"
+    "Exciting Macaron Blind Box": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-exciting-macaron-series-plush-pendant-blind-box",
+    "Drunk in Sea Magnet Box": "https://au.popmart.com/products/pop-mart-the-monsters-labubu-drunk-in-sea-series-fridge-magnet-blind-box"
 }
 
 HEADERS = {
@@ -50,7 +51,7 @@ while True:
             else:
                 print(f"{name}: Still sold out.")
         print("Sleeping for 5 minutes...")
-        time.sleep(300)  # wait 5 minutes
+        time.sleep(300)
     except Exception as e:
         print("General error:", e)
         time.sleep(300)
