@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from twilio.rest import Client
 import time
 
-# Twilio credentials from Railway environment variables
+# Load Twilio credentials from Railway environment variables
 TWILIO_SID = os.environ["TWILIO_SID"]
 TWILIO_AUTH_TOKEN = os.environ["TWILIO_AUTH_TOKEN"]
 TWILIO_PHONE = os.environ["TWILIO_PHONE"]
@@ -12,7 +12,7 @@ YOUR_PHONE = os.environ["YOUR_PHONE"]
 
 client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
 
-# 4 products, including 1 that is confirmed IN STOCK
+# Popmart product URLs to check
 PRODUCTS = {
     "Checkmate Pendant": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-labubu-lets-checkmate-vinyl-plush-pendant",
     "Have A Seat Blind Box": "https://au.popmart.com/collections/the-monsters/products/pop-mart-the-monsters-have-a-seat-series-plush-pendant-blind-box",
@@ -34,17 +34,19 @@ def is_in_stock(url):
         return False
 
 def send_whatsapp_message(name, url):
-    message = client.messages.create(
-        from_="whatsapp:" + TWILIO_PHONE,
-        to="whatsapp:" + YOUR_PHONE,
-        body=f"🔥 {name} is IN STOCK at Popmart!\n{url}"
-    )
-    print(f"Sent alert for {name} - SID: {message.sid}")
-
-    print(" Restarting stock check")
-
+    try:
+        message = client.messages.create(
+            from_="whatsapp:" + TWILIO_PHONE,
+            to="whatsapp:" + YOUR_PHONE,
+            body=f"🔥 {name} is IN STOCK at Popmart!\n{url}"
+        )
+        print(f"Sent alert for {name} - SID: {message.sid}")
+    except Exception as e:
+        print(f"❌ Failed to send WhatsApp message for {name}: {e}")
 
 # Main loop
+print("🔁 Restarting stock check")
+
 while True:
     try:
         for name, url in PRODUCTS.items():
@@ -53,7 +55,7 @@ while True:
                 send_whatsapp_message(name, url)
             else:
                 print(f"{name}: Still sold out.")
-        print("Sleeping for 5 minutes...")
+        print("Sleeping for 5 minutes...\n")
         time.sleep(300)
     except Exception as e:
         print("General error:", e)
